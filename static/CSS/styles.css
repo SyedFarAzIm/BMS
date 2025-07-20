@@ -1,0 +1,61 @@
+/* Main Styling for Bakery Management System */
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Login Page */
+.login-container {
+    max-width: 450px;
+    margin: 100px auto;
+}
+
+/* Custom Card Styling */
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    margin-bottom: 20px;
+}
+
+.card-header {
+    font-weight: 500;
+}
+
+/* Product Image Thumbnails */
+.product-image {
+    max-height: 120px;
+    object-fit: contain;
+}
+
+.product-image-small {
+    max-height: 50px;
+    object-fit: contain;
+}
+
+/* Invoice Styling */
+.invoice-header {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Button Customizations */
+.btn-primary {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+
+.btn-primary:hover {
+    background-color: #2e59d9;
+    border-color: #2653d4;
+}
+
+/* Utility classes */
+.fw-500 {
+    font-weight: 500;
+}
+
+.text-small {
+    font-size: 0.875rem;
+}
