@@ -1,69 +1,275 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products - Bakery Management System</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Bakery Management System</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('product_list') }}">Products</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-                    </li>
-                </ul>
+{% extends 'base.html' %}
+
+{% block title %}Product Management - Bakery Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-cookie me-2"></i>Product Management
+    </h1>
+    <div>
+        <a href="{{ url_for('add_product') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Add New Product
+        </a>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Search & Filter Section -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-search me-2"></i>Search & Filter Products
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <!-- Search Box -->
+            <div class="col-md-4">
+                <label class="form-label">Search Products</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <input type="text" class="form-control" id="productSearch" placeholder="Search by name...">
+                    <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Price Range Filter -->
+            <div class="col-md-3">
+                <label class="form-label">Price Range</label>
+                <select class="form-select" id="priceFilter">
+                    <option value="all">All Prices</option>
+                    <option value="0-5">$0 - $5</option>
+                    <option value="5-10">$5 - $10</option>
+                    <option value="10-20">$10 - $20</option>
+                    <option value="20-50">$20 - $50</option>
+                    <option value="50+">$50+</option>
+                </select>
+            </div>
+            
+            <!-- Sort By -->
+            <div class="col-md-3">
+                <label class="form-label">Sort By</label>
+                <select class="form-select" id="sortFilter">
+                    <option value="name-asc">Name (A-Z)</option>
+                    <option value="name-desc">Name (Z-A)</option>
+                    <option value="price-asc">Price (Low to High)</option>
+                    <option value="price-desc">Price (High to Low)</option>
+                    {% if has_categories %}
+                    <option value="category-asc">Category (A-Z)</option>
+                    {% endif %}
+                    <option value="id-asc">Newest First</option>
+                    <option value="id-desc">Oldest First</option>
+                </select>
+            </div>
+            
+            <!-- Clear All Filters -->
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-grid">
+                    <button type="button" class="btn btn-outline-danger" id="clearAllFilters">
+                        <i class="fas fa-broom me-1"></i>Clear All
+                    </button>
+                </div>
             </div>
         </div>
-    </nav>
-
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center">
-            <h1>Products</h1>
-            <a href="{{ url_for('add_product') }}" class="btn btn-primary">Add New Product</a>
-        </div>
         
+        <!-- Filter Results Summary -->
+        <div class="mt-3">
+            <small class="text-muted" id="filterResults">
+                Showing <span id="visibleCount">{{ products|length }}</span> of <span id="totalCount">{{ products|length }}</span> products
+            </small>
+        </div>
+    </div>
+</div>
+
+<!-- Category Filter & View Toggle -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                {% if has_categories %}
+                <h6 class="card-title mb-3">
+                    <i class="fas fa-filter me-2"></i>Filter by Category
+                </h6>
+                <div class="btn-group flex-wrap" role="group">
+                    <button type="button" class="btn btn-outline-primary active category-filter" data-category="all">
+                        <i class="fas fa-th-large me-1"></i>All Categories
+                    </button>
+                    {% set categories = products|map(attribute='category')|unique|list %}
+                    {% for category in categories %}
+                    <button type="button" class="btn btn-outline-secondary category-filter" data-category="{{ category }}">
+                        {% if category == 'Bread' %}
+                            <i class="fas fa-bread-slice me-1"></i>🍞 {{ category }}
+                        {% elif category == 'Pastries' %}
+                            <i class="fas fa-cookie me-1"></i>🥐 {{ category }}
+                        {% elif category == 'Cakes' %}
+                            <i class="fas fa-birthday-cake me-1"></i>🎂 {{ category }}
+                        {% elif category == 'Cookies' %}
+                            <i class="fas fa-cookie-bite me-1"></i>🍪 {{ category }}
+                        {% elif category == 'Drinks' %}
+                            <i class="fas fa-coffee me-1"></i>☕ {{ category }}
+                        {% elif category == 'Desserts' %}
+                            <i class="fas fa-ice-cream me-1"></i>🍰 {{ category }}
+                        {% elif category == 'Sandwiches' %}
+                            <i class="fas fa-hamburger me-1"></i>🥪 {{ category }}
+                        {% else %}
+                            <i class="fas fa-tag me-1"></i>{{ category }}
+                        {% endif %}
+                    </button>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-4 text-end">
+                <h6 class="mb-3">
+                    <i class="fas fa-eye me-2"></i>View Mode
+                </h6>
+                <div class="btn-group" role="group" aria-label="View toggle">
+                    <button type="button" class="btn btn-outline-primary active" id="listViewBtn">
+                        <i class="fas fa-list me-1"></i>List
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" id="gridViewBtn">
+                        <i class="fas fa-th me-1"></i>Grid
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Products Summary -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-primary" id="totalProductsCount">{{ products|length }}</h5>
+                <p class="card-text">Total Products</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-success" id="visibleProductsCount">{{ products|length }}</h5>
+                <p class="card-text">Visible Products</p>
+            </div>
+        </div>
+    </div>
+    {% if has_categories %}
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title mb-3">Category Distribution</h6>
+                <div class="row" id="categoryStats">
+                    {% set categories = products|map(attribute='category')|unique|list %}
+                    {% for category in categories %}
+                    {% set count = products|selectattr('category', 'equalto', category)|list|length %}
+                    <div class="col-md-4 col-sm-6 mb-2">
+                        <small class="d-flex justify-content-between">
+                            <span>{{ category }}:</span>
+                            <strong>{{ count }} items</strong>
+                        </small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- LIST VIEW (Default) -->
+<div class="card" id="listView">
+    <div class="card-header">
+        <h5 class="mb-0" id="listViewHeader">
+            <i class="fas fa-list me-2"></i>All Products
+        </h5>
+    </div>
+    <div class="card-body">
         {% if products %}
-        <div class="table-responsive mt-4">
-            <table class="table table-striped">
-                <thead>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
                     <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Quantity</th>
+                        <th>Product</th>
+                        {% if has_categories %}
+                        <th>Category</th>
+                        {% endif %}
+                        <th>Quantity/Description</th>
                         <th>Price</th>
-                        <th>Image</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="productTableBody">
                     {% for product in products %}
-                    <tr>
-                        <td>{{ product.id }}</td>
-                        <td>{{ product.name }}</td>
-                        <td>{{ product.quantity }}</td>
-                        <td>${{ product.price }}</td>
+                    <tr class="product-row" data-category="{{ product.category }}" data-name="{{ product.name|lower }}" data-price="{{ product.price }}" data-id="{{ product.id }}">
                         <td>
-                            {% if product.image %}
-                            <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}" style="height: 50px;">
-                            {% else %}
-                            No image
-                            {% endif %}
+                            <div class="d-flex align-items-center">
+                                {% if product.image %}
+                                    <img src="{{ url_for('static', filename='uploads/' + product.image) }}" 
+                                         alt="{{ product.name }}" 
+                                         class="me-3 rounded" 
+                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-light me-3 rounded d-flex align-items-center justify-content-center" 
+                                         style="width: 50px; height: 50px;">
+                                        <i class="fas fa-image text-muted"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <h6 class="mb-0 product-name">{{ product.name }}</h6>
+                                    <small class="text-muted">ID: {{ product.id }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        {% if has_categories %}
+                        <td>
+                            <span class="badge bg-secondary product-category">
+                                {% if product.category == 'Bread' %}
+                                    🍞 {{ product.category }}
+                                {% elif product.category == 'Pastries' %}
+                                    🥐 {{ product.category }}
+                                {% elif product.category == 'Cakes' %}
+                                    🎂 {{ product.category }}
+                                {% elif product.category == 'Cookies' %}
+                                    🍪 {{ product.category }}
+                                {% elif product.category == 'Drinks' %}
+                                    ☕ {{ product.category }}
+                                {% elif product.category == 'Desserts' %}
+                                    🍰 {{ product.category }}
+                                {% elif product.category == 'Sandwiches' %}
+                                    🥪 {{ product.category }}
+                                {% else %}
+                                    📦 {{ product.category }}
+                                {% endif %}
+                            </span>
+                        </td>
+                        {% endif %}
+                        <td class="product-quantity">{{ product.quantity }}</td>
+                        <td>
+                            <span class="fw-bold text-success product-price">${{ "%.2f"|format(product.price) }}</span>
                         </td>
                         <td>
-                            <a href="{{ url_for('edit_product', id=product.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{{ url_for('edit_product', id=product.id) }}" 
+                                   class="btn btn-outline-primary" 
+                                   title="Edit Product">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{{ url_for('delete_product', id=product.id) }}" 
+                                   class="btn btn-outline-danger" 
+                                   title="Delete Product"
+                                   onclick="return confirm('Are you sure you want to delete this product?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -71,12 +277,551 @@
             </table>
         </div>
         {% else %}
-        <div class="alert alert-info mt-4">
-            No products found. Click "Add New Product" to create one.
+        <div class="text-center py-5" id="noProductsMessage">
+            <i class="fas fa-cookie fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No products found</h5>
+            <p class="text-muted">Start by adding your first product to the inventory.</p>
+            <a href="{{ url_for('add_product') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Add First Product
+            </a>
         </div>
         {% endif %}
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<!-- GRID VIEW (Hidden by default) -->
+<div class="card d-none" id="gridView">
+    <div class="card-header">
+        <h5 class="mb-0" id="gridViewHeader">
+            <i class="fas fa-th me-2"></i>All Products
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if products %}
+        <div class="row" id="productGridContainer">
+            {% for product in products %}
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-4 product-card" data-category="{{ product.category }}" data-name="{{ product.name|lower }}" data-price="{{ product.price }}" data-id="{{ product.id }}">
+                <div class="card h-100 shadow-sm product-item">
+                    <!-- Product Image -->
+                    <div class="position-relative">
+                        {% if product.image %}
+                            <img src="{{ url_for('static', filename='uploads/' + product.image) }}" 
+                                 class="card-img-top" 
+                                 alt="{{ product.name }}" 
+                                 style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                 style="height: 200px;">
+                                <i class="fas fa-image fa-3x text-muted"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Category Badge -->
+                        {% if has_categories %}
+                        <span class="position-absolute top-0 start-0 m-2 badge bg-dark product-category">
+                            {% if product.category == 'Bread' %}
+                                🍞 {{ product.category }}
+                            {% elif product.category == 'Pastries' %}
+                                🥐 {{ product.category }}
+                            {% elif product.category == 'Cakes' %}
+                                🎂 {{ product.category }}
+                            {% elif product.category == 'Cookies' %}
+                                🍪 {{ product.category }}
+                            {% elif product.category == 'Drinks' %}
+                                ☕ {{ product.category }}
+                            {% elif product.category == 'Desserts' %}
+                                🍰 {{ product.category }}
+                            {% elif product.category == 'Sandwiches' %}
+                                🥪 {{ product.category }}
+                            {% else %}
+                                📦 {{ product.category }}
+                            {% endif %}
+                        </span>
+                        {% endif %}
+                        
+                        <!-- Price Badge -->
+                        <span class="position-absolute top-0 end-0 m-2 badge bg-success fs-6 product-price">
+                            ${{ "%.2f"|format(product.price) }}
+                        </span>
+                    </div>
+                    
+                    <!-- Card Body -->
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title mb-2 product-name">{{ product.name }}</h6>
+                        <p class="card-text text-muted small mb-2 product-quantity">
+                            <i class="fas fa-box me-1"></i>{{ product.quantity }}
+                        </p>
+                        <p class="card-text small text-muted mb-3">
+                            <i class="fas fa-hashtag me-1"></i>ID: {{ product.id }}
+                        </p>
+                        
+                        <!-- Action Buttons -->
+                        <div class="mt-auto">
+                            <div class="d-grid gap-2">
+                                <a href="{{ url_for('edit_product', id=product.id) }}" 
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-edit me-1"></i>Edit Product
+                                </a>
+                                <a href="{{ url_for('delete_product', id=product.id) }}" 
+                                   class="btn btn-outline-danger btn-sm"
+                                   onclick="return confirm('Are you sure you want to delete this product?')">
+                                    <i class="fas fa-trash me-1"></i>Delete Product
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5" id="noProductsGridMessage">
+            <i class="fas fa-cookie fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No products found</h5>
+            <p class="text-muted">Start by adding your first product to the inventory.</p>
+            <a href="{{ url_for('add_product') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Add First Product
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+/* Custom styles for grid view */
+.product-item {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.product-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.card-img-top {
+    transition: transform 0.3s ease;
+}
+
+.product-item:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+/* Smooth view transitions */
+#listView, #gridView {
+    transition: opacity 0.3s ease;
+}
+
+/* Badge animations */
+.badge {
+    transition: all 0.2s ease;
+}
+
+.product-item:hover .badge {
+    transform: scale(1.1);
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 768px) {
+    .product-card {
+        margin-bottom: 1.5rem !important;
+    }
+}
+
+/* Category filter button hover effects */
+.category-filter {
+    transition: all 0.2s ease;
+}
+
+.category-filter:hover {
+    transform: translateY(-2px);
+}
+
+/* View toggle buttons */
+#listViewBtn, #gridViewBtn {
+    transition: all 0.2s ease;
+}
+
+#listViewBtn.active, #gridViewBtn.active {
+    background-color: var(--bs-primary);
+    color: white;
+    border-color: var(--bs-primary);
+}
+
+/* Search highlight */
+.search-highlight {
+    background-color: yellow;
+    font-weight: bold;
+}
+
+/* Filter animations */
+.product-row, .product-card {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.product-row.filtered-out, .product-card.filtered-out {
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // DOM Elements
+    const listViewBtn = document.getElementById('listViewBtn');
+    const gridViewBtn = document.getElementById('gridViewBtn');
+    const listView = document.getElementById('listView');
+    const gridView = document.getElementById('gridView');
+    const listViewHeader = document.getElementById('listViewHeader');
+    const gridViewHeader = document.getElementById('gridViewHeader');
+    
+    // Filter Elements
+    const productSearch = document.getElementById('productSearch');
+    const priceFilter = document.getElementById('priceFilter');
+    const sortFilter = document.getElementById('sortFilter');
+    const clearSearch = document.getElementById('clearSearch');
+    const clearAllFilters = document.getElementById('clearAllFilters');
+    
+    // Product Elements
+    const categoryButtons = document.querySelectorAll('.category-filter');
+    const productRows = document.querySelectorAll('.product-row');
+    const productCards = document.querySelectorAll('.product-card');
+    
+    // Counter Elements
+    const visibleCount = document.getElementById('visibleCount');
+    const totalCount = document.getElementById('totalCount');
+    const totalProductsCount = document.getElementById('totalProductsCount');
+    const visibleProductsCount = document.getElementById('visibleProductsCount');
+    
+    // Load saved preferences
+    const savedView = localStorage.getItem('productViewMode') || 'list';
+    const savedSearch = localStorage.getItem('productSearch') || '';
+    const savedPriceFilter = localStorage.getItem('priceFilter') || 'all';
+    const savedSortFilter = localStorage.getItem('sortFilter') || 'name-asc';
+    
+    // Initialize
+    initializeView();
+    initializeFilters();
+    initializeEventListeners();
+    
+    function initializeView() {
+        if (savedView === 'grid') {
+            switchToGridView();
+        }
+    }
+    
+    function initializeFilters() {
+        productSearch.value = savedSearch;
+        priceFilter.value = savedPriceFilter;
+        sortFilter.value = savedSortFilter;
+        
+        applyAllFilters();
+    }
+    
+    function initializeEventListeners() {
+        // View toggle
+        listViewBtn.addEventListener('click', function() {
+            switchToListView();
+            localStorage.setItem('productViewMode', 'list');
+        });
+        
+        gridViewBtn.addEventListener('click', function() {
+            switchToGridView();
+            localStorage.setItem('productViewMode', 'grid');
+        });
+        
+        // Search functionality
+        productSearch.addEventListener('input', function() {
+            localStorage.setItem('productSearch', this.value);
+            applyAllFilters();
+        });
+        
+        clearSearch.addEventListener('click', function() {
+            productSearch.value = '';
+            localStorage.removeItem('productSearch');
+            applyAllFilters();
+        });
+        
+        // Price filter
+        priceFilter.addEventListener('change', function() {
+            localStorage.setItem('priceFilter', this.value);
+            applyAllFilters();
+        });
+        
+        // Sort filter
+        sortFilter.addEventListener('change', function() {
+            localStorage.setItem('sortFilter', this.value);
+            applySorting();
+            applyAllFilters();
+        });
+        
+        // Clear all filters
+        clearAllFilters.addEventListener('click', function() {
+            productSearch.value = '';
+            priceFilter.value = 'all';
+            sortFilter.value = 'name-asc';
+            
+            // Reset category filter
+            categoryButtons.forEach(btn => btn.classList.remove('active'));
+            categoryButtons[0].classList.add('active');
+            
+            // Clear localStorage
+            localStorage.removeItem('productSearch');
+            localStorage.removeItem('priceFilter');
+            localStorage.removeItem('sortFilter');
+            
+            applySorting();
+            applyAllFilters();
+        });
+        
+        // Category filtering
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const selectedCategory = this.dataset.category;
+                
+                // Update active button
+                categoryButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                applyAllFilters();
+            });
+        });
+    }
+    
+    function switchToListView() {
+        listViewBtn.classList.add('active');
+        gridViewBtn.classList.remove('active');
+        listView.classList.remove('d-none');
+        gridView.classList.add('d-none');
+    }
+    
+    function switchToGridView() {
+        gridViewBtn.classList.add('active');
+        listViewBtn.classList.remove('active');
+        gridView.classList.remove('d-none');
+        listView.classList.add('d-none');
+    }
+    
+    function applyAllFilters() {
+        const searchTerm = productSearch.value.toLowerCase();
+        const selectedCategory = document.querySelector('.category-filter.active').dataset.category;
+        const selectedPriceRange = priceFilter.value;
+        
+        let visibleRowsCount = 0;
+        let visibleCardsCount = 0;
+        
+        // Filter list view
+        productRows.forEach(row => {
+            const isVisible = shouldShowProduct(row, searchTerm, selectedCategory, selectedPriceRange);
+            if (isVisible) {
+                row.style.display = '';
+                row.classList.remove('filtered-out');
+                visibleRowsCount++;
+            } else {
+                row.style.display = 'none';
+                row.classList.add('filtered-out');
+            }
+        });
+        
+        // Filter grid view
+        productCards.forEach(card => {
+            const isVisible = shouldShowProduct(card, searchTerm, selectedCategory, selectedPriceRange);
+            if (isVisible) {
+                card.style.display = '';
+                card.classList.remove('filtered-out');
+                visibleCardsCount++;
+            } else {
+                card.style.display = 'none';
+                card.classList.add('filtered-out');
+            }
+        });
+        
+        // Update counters
+        const visible = Math.max(visibleRowsCount, visibleCardsCount);
+        updateCounters(visible);
+        updateHeaders(selectedCategory, visible);
+        
+        // Highlight search terms
+        if (searchTerm) {
+            highlightSearchTerms(searchTerm);
+        } else {
+            removeHighlight();
+        }
+    }
+    
+    function shouldShowProduct(element, searchTerm, category, priceRange) {
+        const productName = element.dataset.name;
+        const productCategory = element.dataset.category;
+        const productPrice = parseFloat(element.dataset.price);
+        
+        // Search filter
+        if (searchTerm && !productName.includes(searchTerm)) {
+            return false;
+        }
+        
+        // Category filter
+        if (category !== 'all' && productCategory !== category) {
+            return false;
+        }
+        
+        // Price filter
+        if (!isPriceInRange(productPrice, priceRange)) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    function isPriceInRange(price, range) {
+        switch (range) {
+            case 'all':
+                return true;
+            case '0-5':
+                return price >= 0 && price <= 5;
+            case '5-10':
+                return price > 5 && price <= 10;
+            case '10-20':
+                return price > 10 && price <= 20;
+            case '20-50':
+                return price > 20 && price <= 50;
+            case '50+':
+                return price > 50;
+            default:
+                return true;
+        }
+    }
+    
+    function applySorting() {
+        const sortBy = sortFilter.value;
+        const [field, direction] = sortBy.split('-');
+        
+        // Sort rows
+        const sortedRows = Array.from(productRows).sort((a, b) => {
+            return compareProducts(a, b, field, direction);
+        });
+        
+        // Sort cards
+        const sortedCards = Array.from(productCards).sort((a, b) => {
+            return compareProducts(a, b, field, direction);
+        });
+        
+        // Reorder in DOM
+        const tableBody = document.getElementById('productTableBody');
+        const gridContainer = document.getElementById('productGridContainer');
+        
+        sortedRows.forEach(row => tableBody.appendChild(row));
+        sortedCards.forEach(card => gridContainer.appendChild(card));
+    }
+    
+    function compareProducts(a, b, field, direction) {
+        let valueA, valueB;
+        
+        switch (field) {
+            case 'name':
+                valueA = a.dataset.name;
+                valueB = b.dataset.name;
+                break;
+            case 'price':
+                valueA = parseFloat(a.dataset.price);
+                valueB = parseFloat(b.dataset.price);
+                break;
+            case 'category':
+                valueA = a.dataset.category;
+                valueB = b.dataset.category;
+                break;
+            case 'id':
+                valueA = parseInt(a.dataset.id);
+                valueB = parseInt(b.dataset.id);
+                break;
+            default:
+                return 0;
+        }
+        
+        let comparison = 0;
+        if (typeof valueA === 'string') {
+            comparison = valueA.localeCompare(valueB);
+        } else {
+            comparison = valueA - valueB;
+        }
+        
+        return direction === 'desc' ? -comparison : comparison;
+    }
+    
+    function highlightSearchTerms(searchTerm) {
+        const elements = document.querySelectorAll('.product-name');
+        elements.forEach(element => {
+            const text = element.textContent;
+            const highlightedText = text.replace(
+                new RegExp(searchTerm, 'gi'),
+                match => `<span class="search-highlight">${match}</span>`
+            );
+            element.innerHTML = highlightedText;
+        });
+    }
+    
+    function removeHighlight() {
+        const highlighted = document.querySelectorAll('.search-highlight');
+        highlighted.forEach(element => {
+            const parent = element.parentNode;
+            parent.replaceChild(document.createTextNode(element.textContent), element);
+            parent.normalize();
+        });
+    }
+    
+    function updateCounters(visible) {
+        const total = productRows.length;
+        visibleCount.textContent = visible;
+        totalCount.textContent = total;
+        totalProductsCount.textContent = total;
+        visibleProductsCount.textContent = visible;
+        
+        // Update filter results summary
+        document.getElementById('filterResults').innerHTML = `
+            Showing <span class="fw-bold text-primary">${visible}</span> of 
+            <span class="fw-bold">${total}</span> products
+        `;
+    }
+    
+    function updateHeaders(category, visible) {
+        let headerText;
+        if (category === 'all') {
+            headerText = visible === productRows.length ? 
+                'All Products' : 
+                `Filtered Products (${visible})`;
+        } else {
+            headerText = `${category} Products (${visible})`;
+        }
+        
+        listViewHeader.innerHTML = `<i class="fas fa-list me-2"></i>${headerText}`;
+        gridViewHeader.innerHTML = `<i class="fas fa-th me-2"></i>${headerText}`;
+    }
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl + F to focus search
+        if (e.ctrlKey && e.key === 'f') {
+            e.preventDefault();
+            productSearch.focus();
+        }
+        // Alt + L for List view
+        else if (e.altKey && e.key === 'l') {
+            e.preventDefault();
+            switchToListView();
+            localStorage.setItem('productViewMode', 'list');
+        }
+        // Alt + G for Grid view
+        else if (e.altKey && e.key === 'g') {
+            e.preventDefault();
+            switchToGridView();
+            localStorage.setItem('productViewMode', 'grid');
+        }
+        // Escape to clear search
+        else if (e.key === 'Escape' && productSearch.value) {
+            productSearch.value = '';
+            localStorage.removeItem('productSearch');
+            applyAllFilters();
+        }
+    });
+});
+</script>
+{% endblock %}

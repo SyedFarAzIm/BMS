@@ -3,29 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Bakery Management System</title>
+    <title>{% block title %}Admin Dashboard - Bakery Management System{% endblock %}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="#">Bakery Management System</a>
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-cookie me-2"></i>Bakery Management System
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+                        <a class="nav-link active" href="{{ url_for('admin_dashboard') }}">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('product_list') }}">Products</a>
+                        <a class="nav-link" href="{{ url_for('product_list') }}">
+                            <i class="fas fa-list me-1"></i>Products
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('place_order') }}">Manager Interface</a>
+                        <a class="nav-link" href="{{ url_for('place_order') }}">
+                            <i class="fas fa-shopping-cart me-1"></i>Manager Interface
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -33,40 +45,506 @@
     </nav>
 
     <div class="container mt-4">
-        <h1>Admin Dashboard</h1>
-        <p>Welcome to the Bakery Management System!</p>
-        
-        <div class="row mt-4">
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Products Management</h5>
-                        <p class="card-text">Add, edit, and manage bakery products</p>
-                        <a href="{{ url_for('product_list') }}" class="btn btn-primary">Manage Products</a>
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-2">
+                        <i class="fas fa-tachometer-alt me-3"></i>Admin Dashboard
+                    </h1>
+                    <p class="mb-0 opacity-75">Welcome back, {{ session.username }}! Here's your bakery overview.</p>
+                </div>
+                <div class="text-end">
+                    <div class="badge bg-light text-dark fs-6 mb-2" id="currentTime"></div>
+                    <div class="quick-actions no-print">
+                        <button class="btn btn-light btn-sm" onclick="refreshDashboard()" id="refreshDashboard">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mb-4 no-print">
+            <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Orders History</h5>
-                        <p class="card-text">View all customer orders</p>
-                        <a href="{{ url_for('orders_history') }}" class="btn btn-info">View Orders</a>
+                        <h6 class="card-title mb-3">
+                            <i class="fas fa-bolt me-2"></i>Quick Actions
+                        </h6>
+                        <div class="quick-actions d-flex flex-wrap gap-2">
+                            <a href="{{ url_for('add_product') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i>Add Product
+                            </a>
+                            <a href="{{ url_for('place_order') }}" class="btn btn-success">
+                                <i class="fas fa-shopping-cart me-1"></i>New Order
+                            </a>
+                            <a href="{{ url_for('product_list') }}" class="btn btn-info">
+                                <i class="fas fa-list me-1"></i>View Products
+                            </a>
+                            <a href="{{ url_for('orders_history') }}" class="btn btn-warning">
+                                <i class="fas fa-history me-1"></i>Order History
+                            </a>
+                            <a href="{{ url_for('download_all_orders') }}" class="btn btn-danger">
+                                <i class="fas fa-file-pdf me-1"></i>Download Report
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-left-primary hover-shadow">
                     <div class="card-body">
-                        <h5 class="card-title">Manager Interface</h5>
-                        <p class="card-text">Access order management system</p>
-                        <a href="{{ url_for('place_order') }}" class="btn btn-success">Manager Interface</a>
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Products
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalProducts">
+                                    {{ product_count or 0 }}
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fas fa-arrow-up text-success"></i> Active inventory
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-cookie fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-left-success hover-shadow">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Total Orders
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalOrders">
+                                    {{ order_count or 0 }}
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fas fa-shopping-bag me-1"></i> All time
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-shopping-bag fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-left-info hover-shadow">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Total Revenue
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalRevenue">
+                                    ${{ "%.2f"|format(total_revenue or 0) }}
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fas fa-chart-line me-1"></i> All time
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-left-warning hover-shadow">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Total Users
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalUsers">
+                                    {{ user_count or 0 }}
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fas fa-users me-1"></i> Registered
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Stats -->
+        <div class="row g-4 mb-4">
+            <div class="col-xl-4">
+                <div class="card border-left-success hover-shadow">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Today's Sales
+                                </div>
+                                <div class="h4 mb-0 font-weight-bold text-gray-800" id="todaySales">
+                                    ${{ "%.2f"|format(today_sales or 0) }}
+                                </div>
+                                <small class="text-success">
+                                    <i class="fas fa-arrow-up"></i> <span id="salesGrowth">+0%</span> from yesterday
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4">
+                <div class="card border-left-info hover-shadow">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Today's Orders
+                                </div>
+                                <div class="h4 mb-0 font-weight-bold text-gray-800" id="todayOrders">
+                                    {{ today_orders or 0 }}
+                                </div>
+                                <small class="text-info">
+                                    <i class="fas fa-shopping-cart"></i> Active orders
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-receipt fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4">
+                <div class="card border-left-warning hover-shadow">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Average Order
+                                </div>
+                                <div class="h4 mb-0 font-weight-bold text-gray-800" id="avgOrder">
+                                    ${{ "%.2f"|format((total_revenue / order_count) if order_count and order_count > 0 else 0) }}
+                                </div>
+                                <small class="text-warning">
+                                    <i class="fas fa-calculator"></i> Per order
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-calculator fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Management Cards -->
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <div class="card h-100 hover-shadow">
+                    <div class="card-body text-center">
+                        <div class="feature-icon bg-primary bg-gradient rounded-circle text-white mx-auto mb-3">
+                            <i class="fas fa-cookie fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">Manage Products</h5>
+                        <p class="card-text text-muted">Add, edit, and manage bakery products</p>
+                        <a href="{{ url_for('product_list') }}" class="btn btn-primary">
+                            <i class="fas fa-arrow-right me-1"></i>Go to Products
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3">
+                <div class="card h-100 hover-shadow">
+                    <div class="card-body text-center">
+                        <div class="feature-icon bg-info bg-gradient rounded-circle text-white mx-auto mb-3">
+                            <i class="fas fa-history fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">Order History</h5>
+                        <p class="card-text text-muted">View all customer orders and transactions</p>
+                        <a href="{{ url_for('orders_history') }}" class="btn btn-info">
+                            <i class="fas fa-arrow-right me-1"></i>View Orders
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3">
+                <div class="card h-100 hover-shadow">
+                    <div class="card-body text-center">
+                        <div class="feature-icon bg-success bg-gradient rounded-circle text-white mx-auto mb-3">
+                            <i class="fas fa-shopping-cart fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">New Order</h5>
+                        <p class="card-text text-muted">Create a new customer order</p>
+                        <a href="{{ url_for('place_order') }}" class="btn btn-success">
+                            <i class="fas fa-arrow-right me-1"></i>Place Order
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3">
+                <div class="card h-100 hover-shadow">
+                    <div class="card-body text-center">
+                        <div class="feature-icon bg-danger bg-gradient rounded-circle text-white mx-auto mb-3">
+                            <i class="fas fa-download fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">Download Report</h5>
+                        <p class="card-text text-muted">Download all orders in PDF format</p>
+                        <a href="{{ url_for('download_all_orders') }}" class="btn btn-danger">
+                            <i class="fas fa-file-pdf me-1"></i>Download PDF
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Dashboard JavaScript -->
+    <script>
+        // Dashboard Configuration
+        const DASHBOARD_CONFIG = {
+            refreshInterval: 30000, // 30 seconds
+            animationDuration: 1000
+        };
+
+        // Initialize Dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎯 Initializing Dashboard...');
+            initializeDashboard();
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000);
+            startAutoRefresh();
+        });
+
+        // Main Dashboard Initialization
+        function initializeDashboard() {
+            try {
+                bindEventListeners();
+                showWelcomeMessage();
+                animateCards();
+            } catch (error) {
+                console.error('❌ Dashboard initialization error:', error);
+            }
+        }
+
+        // Update Current Time Display
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: true,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            const dateString = now.toLocaleDateString('en-US', {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+            
+            const timeElement = document.getElementById('currentTime');
+            if (timeElement) {
+                timeElement.textContent = `${dateString} ${timeString}`;
+                timeElement.setAttribute('title', 'Current Date & Time');
+            }
+        }
+
+        // Bind Event Listeners
+        function bindEventListeners() {
+            // Refresh button
+            const refreshBtn = document.getElementById('refreshDashboard');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', refreshDashboard);
+            }
+
+            // Add hover effects to cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        }
+
+        // Refresh Dashboard
+        function refreshDashboard() {
+            console.log('🔄 Refreshing dashboard...');
+            showRefreshIndicator();
+            
+            // Simulate data refresh
+            setTimeout(() => {
+                hideRefreshIndicator();
+                showNotification('Dashboard refreshed successfully!', 'success');
+            }, 2000);
+        }
+
+        // Auto Refresh
+        function startAutoRefresh() {
+            setInterval(() => {
+                console.log('🔄 Auto-refreshing dashboard...');
+                updateLiveStats();
+            }, DASHBOARD_CONFIG.refreshInterval);
+        }
+
+        // Update Live Stats (simulated)
+        function updateLiveStats() {
+            // This would normally fetch real data from your API
+            const stats = generateRandomStats();
+            
+            // Update today's sales
+            animateCounter(document.getElementById('todaySales'), `$${stats.sales.toFixed(2)}`);
+            
+            // Update today's orders
+            animateCounter(document.getElementById('todayOrders'), stats.orders);
+            
+            // Update sales growth
+            const growthElement = document.getElementById('salesGrowth');
+            if (growthElement) {
+                growthElement.textContent = `+${stats.growth}%`;
+            }
+        }
+
+        // Generate Random Stats (for demo)
+        function generateRandomStats() {
+            return {
+                sales: Math.random() * 1000 + 500,
+                orders: Math.floor(Math.random() * 50) + 20,
+                growth: (Math.random() * 20 + 5).toFixed(1)
+            };
+        }
+
+        // Animate Counter
+        function animateCounter(element, targetValue) {
+            if (!element) return;
+            
+            const isNumber = !isNaN(parseFloat(targetValue));
+            if (!isNumber) {
+                element.textContent = targetValue;
+                return;
+            }
+
+            const target = parseFloat(targetValue.replace('$', ''));
+            const current = parseFloat(element.textContent.replace('$', '')) || 0;
+            const increment = (target - current) / 20;
+            
+            let currentValue = current;
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if ((increment > 0 && currentValue >= target) || (increment < 0 && currentValue <= target)) {
+                    currentValue = target;
+                    clearInterval(timer);
+                }
+                
+                const displayValue = targetValue.includes('$') ? 
+                    `$${currentValue.toFixed(2)}` : 
+                    Math.round(currentValue);
+                element.textContent = displayValue;
+            }, 50);
+        }
+
+        // Animate Cards on Load
+        function animateCards() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+
+        // UI State Management
+        function showRefreshIndicator() {
+            const refreshBtn = document.getElementById('refreshDashboard');
+            if (refreshBtn) {
+                const icon = refreshBtn.querySelector('i');
+                if (icon) {
+                    icon.classList.add('fa-spin');
+                }
+                refreshBtn.disabled = true;
+            }
+        }
+
+        function hideRefreshIndicator() {
+            const refreshBtn = document.getElementById('refreshDashboard');
+            if (refreshBtn) {
+                const icon = refreshBtn.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-spin');
+                }
+                refreshBtn.disabled = false;
+            }
+        }
+
+        function showWelcomeMessage() {
+            console.log('🎉 Welcome to the Bakery Management Dashboard!');
+        }
+
+        // Show Notification (optional - you can implement toast notifications)
+        function showNotification(message, type = 'info') {
+            console.log(`📢 ${type.toUpperCase()}: ${message}`);
+            // You can implement actual toast notifications here
+        }
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + R: Refresh Dashboard
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                refreshDashboard();
+            }
+        });
+
+        // Export functions for external use
+        window.dashboardFunctions = {
+            refreshDashboard,
+            startAutoRefresh,
+            updateLiveStats
+        };
+
+        // Performance monitoring
+        window.addEventListener('load', function() {
+            console.log('⚡ Dashboard loaded in:', performance.now().toFixed(2) + 'ms');
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,62 @@
+-- Create the database if it doesn't exist
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'BMS')
+BEGIN
+    CREATE DATABASE BMS;
+END
+GO
+
+USE BMS;
+GO
+
+-- Create users table if it doesn't exist
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'users')
+BEGIN
+    CREATE TABLE users (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        username NVARCHAR(100) NOT NULL UNIQUE,
+        password NVARCHAR(255) NOT NULL,
+        role NVARCHAR(50) NOT NULL
+    );
+END
+GO
+
+-- Create products table if it doesn't exist
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'products')
+BEGIN
+    CREATE TABLE products (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        name NVARCHAR(255) NOT NULL,
+        quantity NVARCHAR(100) NOT NULL,
+        price DECIMAL(10,2) NOT NULL,
+        image NVARCHAR(255)
+    );
+END
+GO
+
+-- Create orders table if it doesn't exist
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'orders')
+BEGIN
+    CREATE TABLE orders (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        order_id NVARCHAR(50) NOT NULL UNIQUE,
+        customer_name NVARCHAR(255) NOT NULL,
+        total_price DECIMAL(10,2) NOT NULL,
+        order_date DATETIME NOT NULL
+    );
+END
+GO
+
+-- Create order_items table if it doesn't exist
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'order_items')
+BEGIN
+    CREATE TABLE order_items (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        order_id NVARCHAR(50) NOT NULL,
+        product_id INT NOT NULL,
+        quantity INT NOT NULL,
+        price DECIMAL(10,2) NOT NULL,
+        CONSTRAINT fk_order_items_products FOREIGN KEY (product_id) REFERENCES products(id),
+        CONSTRAINT fk_order_items_orders FOREIGN KEY (order_id) REFERENCES orders(order_id)
+    );
+END
+GO
