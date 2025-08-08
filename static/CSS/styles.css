@@ -1,61 +1,1008 @@
-/* Main Styling for Bakery Management System */
+/* ========================================
+   BAKERY MANAGEMENT SYSTEM - STYLES
+   ======================================== */
 
+/* Base Styles */
 body {
-    background-color: #f8f9fa;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fc;
+    color: #5a5c69;
 }
 
-/* Login Page */
-.login-container {
-    max-width: 450px;
-    margin: 100px auto;
+/* Navigation Styles */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
 }
 
-/* Custom Card Styling */
+.navbar-nav .nav-link {
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #fff !important;
+}
+
+/* ========================================
+   DASHBOARD SPECIFIC STYLES
+   ======================================== */
+
+/* Feature Icons */
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 0 auto;
+}
+
+/* Hover Effects */
+.hover-shadow {
+    transition: all 0.3s ease;
+}
+
+.hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+}
+
+/* Border Colors for KPI Cards */
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+
+/* Typography */
+.text-xs {
+    font-size: 0.7rem;
+}
+
+.text-gray-800 {
+    color: #5a5c69 !important;
+}
+
+.text-gray-300 {
+    color: #dddfeb !important;
+}
+
+/* Card Enhancements */
 .card {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
     border: none;
-    margin-bottom: 20px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(33, 40, 50, 0.15);
+    border-radius: 0.5rem;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.25rem 2rem 0 rgba(33, 40, 50, 0.25);
 }
 
 .card-header {
-    font-weight: 500;
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
 }
 
-/* Product Image Thumbnails */
-.product-image {
-    max-height: 120px;
-    object-fit: contain;
+/* Chart Container */
+.chart-area {
+    position: relative;
+    height: 320px;
 }
 
-.product-image-small {
-    max-height: 50px;
-    object-fit: contain;
+.chart-pie {
+    position: relative;
+    height: 250px;
 }
 
-/* Invoice Styling */
-.invoice-header {
-    background-color: #f8f9fa;
-    padding: 20px;
+/* Real-time Elements */
+#currentTime {
+    animation: pulse 2s infinite;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.02); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* Alert Animations */
+.alert {
+    animation: slideIn 0.5s ease-out;
+    border-radius: 0.5rem;
+}
+
+@keyframes slideIn {
+    from { 
+        transform: translateX(-100%); 
+        opacity: 0; 
+    }
+    to { 
+        transform: translateX(0); 
+        opacity: 1; 
+    }
+}
+
+/* Timeline Styles */
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -30px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 3px #e9ecef;
+}
+
+.timeline-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: -25px;
+    top: 17px;
+    width: 2px;
+    height: calc(100% + 10px);
+    background: #e9ecef;
+}
+
+/* Weather Widget */
+.weather-icon {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Progress Bars */
+.progress {
+    border-radius: 10px;
+    background: #f8f9fc;
+    height: 8px;
+}
+
+.progress-bar {
+    border-radius: 10px;
+    transition: width 0.6s ease;
+}
+
+/* Loading Spinner */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+.loading-spinner {
+    display: none;
+}
+
+/* Quick Actions */
+.quick-actions .btn {
+    transition: all 0.3s ease;
+    margin: 0.25rem;
+    border-radius: 0.5rem;
+}
+
+.quick-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Statistics Cards */
+.stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+}
+
+.stat-card .stat-icon {
+    font-size: 2.5rem;
+    opacity: 0.8;
+}
+
+/* Top Products List */
+.top-product-item {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    background: #f8f9fc;
+    transition: all 0.3s ease;
+}
+
+.top-product-item:hover {
+    background: #e3e6f0;
+    transform: translateX(5px);
+}
+
+/* Recent Orders Table */
+.recent-orders-table {
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.recent-orders-table th {
+    background: #f8f9fc;
+    border: none;
+    font-weight: 600;
+    color: #5a5c69;
+}
+
+.recent-orders-table td {
+    border: none;
+    vertical-align: middle;
+}
+
+.recent-order-row {
+    transition: all 0.3s ease;
+}
+
+.recent-order-row:hover {
+    background-color: #f8f9fc;
+}
+
+/* Alert Badges */
+.alert-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-size: 0.75rem;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* System Status Indicators */
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+
+.status-online {
+    background: #1cc88a;
+    box-shadow: 0 0 10px #1cc88a;
+}
+
+.status-offline {
+    background: #e74a3b;
+    box-shadow: 0 0 10px #e74a3b;
+}
+
+.status-warning {
+    background: #f6c23e;
+    box-shadow: 0 0 10px #f6c23e;
+}
+
+/* Button Groups */
+.btn-group .btn {
+    transition: all 0.3s ease;
+}
+
+.btn-group .btn.active {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Badge Animations */
+.badge {
+    transition: all 0.3s ease;
+}
+
+.badge:hover {
+    transform: scale(1.1);
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 768px) {
+    .chart-area {
+        height: 250px;
+    }
+    
+    .dashboard-header {
+        text-align: center;
+        padding: 1.5rem;
+    }
+    
+    .quick-actions .btn {
+        width: 100%;
+        margin: 0.25rem 0;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+@media (max-width: 576px) {
+    .chart-area {
+        height: 200px;
+    }
+    
+    .stat-card .stat-icon {
+        font-size: 2rem;
+    }
+    
+    .timeline {
+        padding-left: 20px;
+    }
+    
+    .timeline-marker {
+        left: -20px;
+        width: 8px;
+        height: 8px;
+    }
+    
+    .timeline-item:not(:last-child)::before {
+        left: -17px;
+    }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #dee2e6;
+    }
+    
+    .chart-area {
+        height: 300px;
+    }
+    
+    body {
+        background: white;
+    }
+}
+
+/* ========================================
+   DARK MODE SUPPORT
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #1a202c;
+        color: #e2e8f0;
+    }
+    
+    .card {
+        background: #2d3748;
+        color: #cb1114;
+    }
+    
+    .text-gray-800 {
+        color: #e2e8f0 !important;
+    }
+    
+    .top-product-item {
+        background: #4a5568;
+        color: #e2e8f0;
+    }
+    
+    .top-product-item:hover {
+        background: #718096;
+    }
+    
+    .navbar-dark {
+        background: #2d3748 !important;
+    }
+}
+
+/* ========================================
+   CUSTOM SCROLLBAR
+   ======================================== */
+
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f7fafc;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}
+
+/* ========================================
+   PRODUCT LIST STYLES
+   ======================================== */
+
+/* Search highlight */
+.search-highlight {
+    background-color: yellow;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+/* Filter animations */
+.product-row, .product-card {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.product-row.filtered-out, .product-card.filtered-out {
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+}
+
+/* Grid view product cards */
+.product-item {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.product-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.card-img-top {
+    transition: transform 0.3s ease;
     border-bottom: 1px solid #dee2e6;
 }
 
-/* Button Customizations */
+.product-item:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+/* Category filter button hover effects */
+.category-filter {
+    transition: all 0.2s ease;
+}
+
+.category-filter:hover {
+    transform: translateY(-2px);
+}
+
+/* View toggle buttons */
+#listViewBtn, #gridViewBtn {
+    transition: all 0.2s ease;
+}
+
+#listViewBtn.active, #gridViewBtn.active {
+    background-color: var(--bs-primary);
+    color: white;
+    border-color: var(--bs-primary);
+}
+
+/* ========================================
+   DASHBOARD JAVASCRIPT (EMBEDDED)
+   Note: This is included via a style trick
+   ======================================== */
+
+/* Inject JavaScript via CSS content property - this is a hack but works */
+body:after {
+    content: '';
+    display: none;
+}
+
+/* The actual JavaScript will be in a style tag within the CSS */
+
+/* Add this section to fix orders history visibility issues */
+
+/* ========================================
+   ORDERS HISTORY PAGE FIXES
+   ======================================== */
+
+/* Override dark mode issues for better readability */
+.table {
+    color: #212529 !important;
+    background-color: white !important;
+}
+
+.table th {
+    color: #212529 !important;
+    background-color: #f8f9fa !important;
+    border-color: #dee2e6 !important;
+    font-weight: 600;
+}
+
+.table td {
+    color: #495057 !important;
+    background-color: white !important;
+    border-color: #dee2e6 !important;
+}
+
+.table-dark th {
+    color: white !important;
+    background-color: #343a40 !important;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa !important;
+    color: #212529 !important;
+}
+
+/* Card content visibility */
+.card {
+    background-color: white !important;
+    color: #212529 !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+.card-body {
+    color: #495057 !important;
+}
+
+.card-header {
+    background-color: #f8f9fa !important;
+    color: #212529 !important;
+    border-bottom: 1px solid #dee2e6 !important;
+}
+
+/* Badge visibility */
+.badge {
+    color: rgb(6, 6, 6) !important;
+}
+
+.badge.bg-info {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+}
+
+.badge.bg-success {
+    background-color: #198754 !important;
+    color: white !important;
+}
+
+/* Button visibility */
+.btn {
+    color: rgb(3, 3, 3) !important;
+}
+
+.btn-info {
+    background-color: #0dcaf0 !important;
+    border-color: #0dcaf0 !important;
+    color: #000 !important;
+}
+
+.btn-success {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: white !important;
+}
+
 .btn-primary {
-    background-color: #4e73df;
-    border-color: #4e73df;
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: white !important;
 }
 
-.btn-primary:hover {
-    background-color: #2e59d9;
-    border-color: #2653d4;
+/* Text elements */
+h1, h2, h3, h4, h5, h6 {
+    color: #212529 !important;
 }
 
-/* Utility classes */
-.fw-500 {
-    font-weight: 500;
+.text-muted {
+    color: #6c757d !important;
 }
 
-.text-small {
+.text-success {
+    color: #198754 !important;
+}
+
+.text-primary {
+    color: #0d6efd !important;
+}
+
+.text-info {
+    color: #0dcaf0 !important;
+}
+
+/* Small text visibility */
+small {
+    color: #6c757d !important;
+}
+
+/* Container and page background */
+.container {
+    background-color: transparent !important;
+}
+
+body.bg-light {
+    background-color: #f8f9fa !important;
+    color: #212529 !important;
+}
+
+/* Navbar text fix */
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: white !important;
+}
+
+.navbar-brand {
+    color: white !important;
+}
+
+/* Alert visibility */
+.alert {
+    color: #212529 !important;
+}
+
+.alert-info {
+    background-color: #d1ecf1 !important;
+    border-color: #bee5eb !important;
+    color: #0c5460 !important;
+}
+
+.alert-success {
+    background-color: #d1e7dd !important;
+    border-color: #badbcc !important;
+    color: #0f5132 !important;
+}
+
+.alert-danger {
+    background-color: #f8d7da !important;
+    border-color: #f5c6cb !important;
+    color: #721c24 !important;
+}
+
+/* ========================================
+   IMPROVED DARK MODE OVERRIDE
+   ======================================== */
+
+/* Override the problematic dark mode settings */
+@media (prefers-color-scheme: dark) {
+    /* Force light mode for better readability */
+    body {
+        background: #f8f9fa !important;
+        color: #212529 !important;
+    }
+    
+    .card {
+        background: white !important;
+        color: #212529 !important;
+        border: 1px solid #dee2e6 !important;
+    }
+    
+    .text-gray-800 {
+        color: #212529 !important;
+    }
+    
+    .top-product-item {
+        background: #f8f9fa !important;
+        color: #212529 !important;
+    }
+    
+    .top-product-item:hover {
+        background: #e9ecef !important;
+        color: #212529 !important;
+    }
+    
+    /* Keep navbar dark but fix other elements */
+    .navbar-dark {
+        background: #343a40 !important;
+    }
+    
+    /* Table fixes for dark mode */
+    .table {
+        color: #212529 !important;
+        background-color: white !important;
+    }
+    
+    .table th,
+    .table td {
+        color: #212529 !important;
+        background-color: white !important;
+        border-color: #dee2e6 !important;
+    }
+    
+    .table-dark th {
+        color: white !important;
+        background-color: #343a40 !important;
+    }
+}
+
+/* ========================================
+   SPECIFIC ORDERS HISTORY ENHANCEMENTS
+   ======================================== */
+
+/* Enhanced table styling */
+.orders-history-table {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    border-radius: 0.375rem !important;
+    overflow: hidden;
+}
+
+.orders-history-table .table {
+    margin-bottom: 0 !important;
+}
+
+.orders-history-table .table-dark th {
+    background-color: #495057 !important;
+    border-color: #495057 !important;
+    color: white !important;
+    font-weight: 600;
+    text-transform: uppercase;
     font-size: 0.875rem;
+    letter-spacing: 0.5px;
+}
+
+.orders-history-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.orders-history-table tbody tr:hover {
+    background-color: #f8f9fa !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Action buttons styling */
+.btn-group .btn {
+    margin: 0 2px;
+    transition: all 0.2s ease;
+}
+
+.btn-group .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Empty state styling */
+.empty-orders-state {
+    padding: 4rem 2rem !important;
+    color: #6c757d !important;
+}
+
+.empty-orders-state i {
+    color: #adb5bd !important;
+    margin-bottom: 1rem;
+}
+
+.empty-orders-state h3 {
+    color: #495057 !important;
+    font-weight: 600;
+}
+
+/* Discount indicator styling */
+.discount-indicator {
+    background: linear-gradient(45deg, #28a745, #20c997) !important;
+    color: white !important;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Amount styling */
+.amount-display {
+    font-weight: 700 !important;
+    font-size: 1.1rem;
+}
+
+.amount-large {
+    color: #198754 !important;
+}
+
+.amount-small {
+    color: #6c757d !important;
+    font-size: 0.9rem;
+}
+
+/* Date formatting */
+.date-display {
+    color: #495057 !important;
+}
+
+.date-display small {
+    color: #6c757d !important;
+    font-size: 0.8rem;
+}
+
+/* Page header */
+.orders-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white !important;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.orders-header h1 {
+    color: white !important;
+    margin: 0;
+    font-weight: 700;
+}
+
+.orders-header .btn {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: white !important;
+    backdrop-filter: blur(10px);
+}
+
+.orders-header .btn:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    transform: translateY(-2px);
+}
+
+/* ========================================
+   ADDITIONAL STYLES
+   ======================================== */
+
+/* Button spacing fixes */
+.btn-group-lg .btn {
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive button spacing */
+@media (max-width: 991.98px) {
+    .btn-lg {
+        font-size: 0.9rem;
+        padding: 0.75rem 1rem;
+    }
+    
+    .btn .small {
+        font-size: 0.8rem;
+    }
+}
+
+/* Prevent button overflow */
+.no-print {
+    overflow-x: auto;
+}
+
+/* Gap utility for older Bootstrap versions */
+.gap-3 > * {
+    margin-right: 1rem !important;
+    margin-bottom: 1rem !important;
+}
+
+.gap-3 > *:last-child {
+    margin-right: 0 !important;
+}
+
+/* Flexbox wrap fixes */
+.flex-wrap {
+    flex-wrap: wrap !important;
+}
+
+/* Print styles */
+@media print {
+    .no-print, 
+    .btn,
+    .navbar,
+    nav {
+        display: none !important;
+    }
+    
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+}
+
+/* Invoice button fixes */
+.invoice-actions {
+    margin-top: 2rem;
+    padding: 1rem;
+}
+
+.invoice-actions .btn {
+    margin: 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.invoice-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Receipt page styling */
+.receipt-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    box-shadow: 0 0 30px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.receipt-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
+
+.receipt-body {
+    padding: 2rem;
+}
+
+.receipt-item {
+    border-bottom: 1px dashed #dee2e6;
+    padding: 10px 0;
+}
+
+.receipt-item:last-child {
+    border-bottom: none;
+}
+
+.receipt-total {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.discount-section {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+    border-left: 4px solid #28a745;
 }
